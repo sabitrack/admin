@@ -171,3 +171,4 @@ export class UsersController {
     return await this.usersService.getUserActivityLogs(id);
   }
 }
+

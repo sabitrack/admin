@@ -14,3 +14,4 @@ export class UpdateVerificationStatusDto {
   @IsString()
   reason?: string;
 }
+

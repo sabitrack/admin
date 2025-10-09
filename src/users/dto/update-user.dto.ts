@@ -66,3 +66,4 @@ export class UpdateUserDto {
   @IsBoolean()
   projectRunner?: boolean;
 }
+

@@ -7,3 +7,4 @@ export class BanUserDto {
   @MinLength(5)
   reason: string;
 }
+

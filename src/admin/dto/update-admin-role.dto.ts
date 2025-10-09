@@ -7,3 +7,4 @@ export class UpdateAdminRoleDto {
   @IsEnum(AdminRole)
   role: AdminRole;
 }
+
