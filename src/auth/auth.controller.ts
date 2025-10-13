@@ -12,23 +12,56 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Admin login' })
-  @ApiBody({ type: LoginDto })
+  @ApiOperation({ 
+    summary: 'Admin login',
+    description: `
+      Login with seeded admin credentials:
+      
+      **Super Admin:**
+      - Email: superadmin@sabitrack.com
+      - Password: SuperAdmin123!
+      
+      **Regular Admin:**
+      - Email: admin@sabitrack.com
+      - Password: Admin123!
+    `
+  })
+  @ApiBody({ 
+    type: LoginDto,
+    examples: {
+      superAdmin: {
+        summary: 'Super Admin Login',
+        description: 'Login as Super Administrator',
+        value: {
+          email: 'superadmin@sabitrack.com',
+          password: 'SuperAdmin123!'
+        }
+      },
+      regularAdmin: {
+        summary: 'Regular Admin Login',
+        description: 'Login as Regular Administrator',
+        value: {
+          email: 'admin@sabitrack.com',
+          password: 'Admin123!'
+        }
+      }
+    }
+  })
   @ApiResponse({ 
     status: 200, 
     description: 'Login successful',
     schema: {
       type: 'object',
       properties: {
-        access_token: { type: 'string' },
-        refresh_token: { type: 'string' },
+        access_token: { type: 'string', example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' },
+        refresh_token: { type: 'string', example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' },
         admin: {
           type: 'object',
           properties: {
-            id: { type: 'string' },
-            email: { type: 'string' },
-            fullName: { type: 'string' },
-            role: { type: 'string' }
+            id: { type: 'string', example: '507f1f77bcf86cd799439011' },
+            email: { type: 'string', example: 'superadmin@sabitrack.com' },
+            fullName: { type: 'string', example: 'Super Administrator' },
+            role: { type: 'string', example: 'SUPER_ADMIN' }
           }
         }
       }
@@ -70,4 +103,5 @@ export class AuthController {
     return { message: 'Logout successful' };
   }
 }
+
 
