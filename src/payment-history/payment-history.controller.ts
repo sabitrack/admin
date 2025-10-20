@@ -18,6 +18,7 @@ export class PaymentHistoryController {
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
   @ApiQuery({ name: 'limit', required: false, type: Number, example: 12 })
   @ApiQuery({ name: 'search', required: false, type: String, description: 'Search by invoice ID or recipient name' })
+  @ApiQuery({ name: 'userId', required: false, type: String, description: 'Filter by specific user ID' })
   @ApiQuery({ name: 'status', required: false, type: String, description: 'Filter by payment status' })
   @ApiQuery({ name: 'paymentMethod', required: false, type: String, description: 'Filter by payment method' })
   @ApiQuery({ name: 'startDate', required: false, type: String, description: 'Start date filter (YYYY-MM-DD)' })
@@ -118,6 +119,7 @@ export class PaymentHistoryController {
     @Query('page') page: number = 1,
     @Query('limit') limit: number = 12,
     @Query('search') search?: string,
+    @Query('userId') userId?: string,
     @Query('status') status?: string,
     @Query('paymentMethod') paymentMethod?: string,
     @Query('startDate') startDate?: string,
@@ -127,6 +129,7 @@ export class PaymentHistoryController {
   ) {
     const filters = {
       search,
+      userId,
       status,
       paymentMethod,
       startDate,

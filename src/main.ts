@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Logger, ValidationPipe } from '@nestjs/common';
+import { UrlLoggerInterceptor } from './common/interceptors/url-logger.interceptor';
 import * as fs from 'fs';
 
 async function bootstrap() {
@@ -44,6 +45,9 @@ async function bootstrap() {
     forbidNonWhitelisted: true,
     transform: true,
   }));
+
+  // Global URL logger interceptor
+  app.useGlobalInterceptors(new UrlLoggerInterceptor());
 
   // Swagger configuration
   const config = new DocumentBuilder()
@@ -99,6 +103,7 @@ async function bootstrap() {
     .addTag('wallet', 'Wallet information endpoints')
     .addTag('payment-history', 'Payment history endpoints')
     .addTag('project-management', 'Project management endpoints')
+    .addTag('dashboard', 'Dashboard analytics endpoints')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

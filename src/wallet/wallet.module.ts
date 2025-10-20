@@ -13,3 +13,7 @@ import { User, UserSchema } from '../users/user.schema';
   exports: [WalletService]
 })
 export class WalletModule {}
+
+
+
+

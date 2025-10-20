@@ -23,13 +23,16 @@ export class WalletService {
       const balance = user.balance || 0;
       const currency = user.preferredCurrency || 'NGN';
       
+      // Ensure we have a valid ISO currency code
+      const validCurrency = currency === 'Naira' || currency === 'Nigerian Naira' ? 'NGN' : currency;
+      
       // Format balance for display
-      const formattedBalance = new Intl.NumberFormat('en-NG', {
-        style: 'currency',
-        currency: currency,
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      }).format(balance);
+      // const formattedBalance = new Intl.NumberFormat('en-NG', {
+      //   style: 'currency',
+      //   currency: validCurrency,
+      //   minimumFractionDigits: 2,
+      //   maximumFractionDigits: 2
+      // }).format(balance);
 
       // Get local payment methods
       const localPaymentMethods = {
@@ -84,7 +87,7 @@ export class WalletService {
           walletBalance: {
             amount: balance,
             currency: currency,
-            formatted: formattedBalance
+            // formatted: formattedBalance
           },
           localPaymentMethods: {
             bankAccounts: (user.bankAccounts || []).map(account => ({
@@ -133,12 +136,15 @@ export class WalletService {
       const balance = user.balance || 0;
       const currency = user.preferredCurrency || 'NGN';
       
-      const formattedBalance = new Intl.NumberFormat('en-NG', {
-        style: 'currency',
-        currency: currency,
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      }).format(balance);
+      // Ensure we have a valid ISO currency code
+      const validCurrency = currency === 'Naira' || currency === 'Nigerian Naira' ? 'NGN' : currency;
+      
+      // const formattedBalance = new Intl.NumberFormat('en-NG', {
+      //   style: 'currency',
+      //   currency: validCurrency,
+      //   minimumFractionDigits: 2,
+      //   maximumFractionDigits: 2
+      // }).format(balance);
 
       return {
         status: 'success',
@@ -148,7 +154,7 @@ export class WalletService {
           balance: {
             amount: balance,
             currency: currency,
-            formatted: formattedBalance
+            // formatted: formattedBalance
           },
           projectBalance: user.projectBalance || 0,
           lastUpdated: new Date()

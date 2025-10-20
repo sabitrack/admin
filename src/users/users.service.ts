@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { User, UserDocument } from './user.schema';
 import { AdminService } from '../admin/admin.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -8,11 +8,15 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { BanUserDto } from './dto/ban-user.dto';
 import { UpdateVerificationStatusDto } from './dto/update-verification-status.dto';
 import { GrantAdminDto } from './dto/grant-admin.dto';
+import { Project, ProjectDocument } from '../dashboard/project.schema';
+import { Transaction, TransactionDocument } from '../payment-history/transaction.schema';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
+    @InjectModel(Project.name) private projectModel: Model<ProjectDocument>,
+    @InjectModel(Transaction.name) private transactionModel: Model<TransactionDocument>,
     private adminService: AdminService,
   ) {}
 
@@ -304,6 +308,171 @@ export class UsersService {
       adminHistory: user.adminHistory || [],
     };
   }
+
+  /**
+   * Get all projects associated with a user
+   */
+  async getUserProjects(userId: string, page: number = 1, limit: number = 10) {
+    try {
+      // Verify user exists
+      const user = await this.userModel.findById(userId);
+      if (!user || user.deleted) {
+        throw new NotFoundException('User not found');
+      }
+
+      const skip = (page - 1) * limit;
+
+      // Get projects where user is owner or vendor
+      const projects = await this.projectModel
+        .find({
+          $or: [
+            { owner: userId },
+            { vendorIds: new Types.ObjectId(userId) }
+          ]
+        })
+        .populate('owner', 'fullName email profilePicture')
+        .populate('vendorIds', 'fullName email profilePicture userType')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean();
+
+      const total = await this.projectModel.countDocuments({
+        $or: [
+          { owner: userId },
+          { vendorIds: new Types.ObjectId(userId) }
+        ]
+      });
+
+      return {
+        status: 'success',
+        message: 'User projects retrieved successfully',
+        data: {
+          projects,
+          pagination: {
+            currentPage: page,
+            totalPages: Math.ceil(total / limit),
+            totalItems: total,
+            itemsPerPage: limit,
+            hasNext: page < Math.ceil(total / limit),
+            hasPrev: page > 1
+          }
+        }
+      };
+    } catch (error) {
+      console.error('Error getting user projects:', error);
+      throw new BadRequestException('Failed to get user projects');
+    }
+  }
+
+  /**
+   * Get comprehensive project details
+   */
+  async getProjectDetails(projectId: string) {
+    try {
+      // Get project with populated data
+      const project = await this.projectModel
+        .findById(projectId)
+        .populate('owner', 'fullName email profilePicture userType phoneNumber')
+        .populate('vendorIds', 'fullName email profilePicture userType phoneNumber')
+        .lean();
+
+      if (!project) {
+        throw new NotFoundException('Project not found');
+      }
+
+      // Get all transactions related to this project
+      const transactions = await this.transactionModel
+        .find({
+          $or: [
+            { externalReference: projectId },
+            { description: { $regex: projectId, $options: 'i' } }
+          ]
+        })
+        .populate('userId', 'fullName email userType')
+        .sort({ date: -1 })
+        .lean();
+
+      // Get milestone payments specifically
+      const milestonePayments = await this.transactionModel
+        .find({
+          type: 'milestone_payment',
+          $or: [
+            { externalReference: projectId },
+            { description: { $regex: projectId, $options: 'i' } }
+          ]
+        })
+        .populate('userId', 'fullName email userType')
+        .sort({ date: -1 })
+        .lean();
+
+      // Calculate project statistics
+      const totalSpent = transactions
+        .filter(t => t.status === 'successful')
+        .reduce((sum, t) => sum + t.amount, 0);
+
+      const totalMilestonePayments = milestonePayments
+        .filter(t => t.status === 'successful')
+        .reduce((sum, t) => sum + t.amount, 0);
+
+      const successfulTransactions = transactions.filter(t => t.status === 'successful').length;
+      const pendingTransactions = transactions.filter(t => t.status === 'pending').length;
+      const failedTransactions = transactions.filter(t => t.status === 'failed').length;
+
+      // Get collaborators (vendors + owner)
+      const owner = project.owner as any;
+      const collaborators = [
+        {
+          id: owner._id,
+          name: owner.fullName || 'Unknown',
+          email: owner.email,
+          userType: owner.userType,
+          profilePicture: owner.profilePicture,
+          role: 'Owner'
+        },
+        ...project.vendorIds.map((vendor: any) => ({
+          id: vendor._id,
+          name: vendor.fullName || 'Unknown',
+          email: vendor.email,
+          userType: vendor.userType,
+          profilePicture: vendor.profilePicture,
+          role: 'Vendor'
+        }))
+      ];
+
+      return {
+        status: 'success',
+        message: 'Project details retrieved successfully',
+        data: {
+          project: {
+            ...project,
+            collaborators
+          },
+          statistics: {
+            totalSpent,
+            totalMilestonePayments,
+            totalTransactions: transactions.length,
+            successfulTransactions,
+            pendingTransactions,
+            failedTransactions,
+            totalVendors: project.vendorIds.length,
+            totalMilestones: project.milestones.length
+          },
+          transactions: {
+            all: transactions,
+            milestonePayments
+          }
+        }
+      };
+    } catch (error) {
+      console.error('Error getting project details:', error);
+      throw new BadRequestException('Failed to get project details');
+    }
+  }
 }
+
+
+
+
 
 

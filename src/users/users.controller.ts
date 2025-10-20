@@ -170,6 +170,34 @@ export class UsersController {
   async getUserActivityLogs(@Param('id') id: string) {
     return await this.usersService.getUserActivityLogs(id);
   }
+
+  @Get(':id/projects')
+  @ApiOperation({ summary: 'Get all projects associated with a user' })
+  @ApiParam({ name: 'id', description: 'User ID' })
+  @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
+  @ApiQuery({ name: 'limit', required: false, type: Number, example: 10 })
+  @ApiResponse({ status: 200, description: 'User projects retrieved successfully' })
+  @ApiResponse({ status: 404, description: 'User not found' })
+  async getUserProjects(
+    @Param('id') userId: string,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10
+  ) {
+    return await this.usersService.getUserProjects(userId, page, limit);
+  }
+
+  @Get('projects/:projectId')
+  @ApiOperation({ summary: 'Get comprehensive project details' })
+  @ApiParam({ name: 'projectId', description: 'Project ID' })
+  @ApiResponse({ status: 200, description: 'Project details retrieved successfully' })
+  @ApiResponse({ status: 404, description: 'Project not found' })
+  async getProjectDetails(@Param('projectId') projectId: string) {
+    return await this.usersService.getProjectDetails(projectId);
+  }
 }
+
+
+
+
 
 

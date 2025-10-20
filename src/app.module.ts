@@ -10,6 +10,7 @@ import { AuditModule } from './audit/audit.module';
 import { WalletModule } from './wallet/wallet.module';
 import { PaymentHistoryModule } from './payment-history/payment-history.module';
 import { ProjectManagementModule } from './project-management/project-management.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { ProjectManagementModule } from './project-management/project-management
     WalletModule,
     PaymentHistoryModule,
     ProjectManagementModule,
+    DashboardModule,
   ],
   controllers: [AppController],
   providers: [AppService],

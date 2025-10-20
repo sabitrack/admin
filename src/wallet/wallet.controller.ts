@@ -146,3 +146,7 @@ export class WalletController {
     return this.walletService.getUserPaymentMethods(userId, req.user.adminId);
   }
 }
+
+
+
+
