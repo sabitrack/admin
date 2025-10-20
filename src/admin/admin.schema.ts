@@ -5,10 +5,6 @@ export type AdminDocument = Admin & Document & {
   _id: Types.ObjectId;
 };
 
-export enum AdminRole {
-  SUPER_ADMIN = 'super_admin',
-  ADMIN = 'admin'
-}
 
 @Schema({ timestamps: true })
 export class Admin {
@@ -21,11 +17,13 @@ export class Admin {
   @Prop({ required: true })
   fullName: string;
 
+
   @Prop({ 
-    enum: AdminRole, 
-    default: AdminRole.ADMIN 
+    type: [Types.ObjectId], 
+    ref: 'Role',
+    default: [] 
   })
-  role: AdminRole;
+  roles: Types.ObjectId[];
 
   @Prop({ default: true })
   isActive: boolean;

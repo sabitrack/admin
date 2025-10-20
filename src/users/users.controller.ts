@@ -22,7 +22,6 @@ import { UsersService } from './users.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
-import { AdminRole } from '../admin/admin.schema';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { BanUserDto } from './dto/ban-user.dto';
@@ -72,7 +71,7 @@ export class UsersController {
   }
 
   @Post()
-  @Roles(AdminRole.SUPER_ADMIN)
+  @Roles('super_admin')
   @ApiOperation({ summary: 'Create new user (Super Admin only)' })
   @ApiResponse({ status: 201, description: 'User created successfully' })
   async createUser(@Body() createUserDto: CreateUserDto, @Request() req) {
@@ -93,7 +92,7 @@ export class UsersController {
   }
 
   @Delete(':id')
-  @Roles(AdminRole.SUPER_ADMIN)
+  @Roles('super_admin')
   @ApiOperation({ summary: 'Soft delete user (Super Admin only)' })
   @ApiParam({ name: 'id', description: 'User ID' })
   @ApiResponse({ status: 200, description: 'User deleted successfully' })
@@ -139,7 +138,7 @@ export class UsersController {
   }
 
   @Post(':id/grant-admin')
-  @Roles(AdminRole.SUPER_ADMIN)
+  @Roles('super_admin')
   @ApiOperation({ summary: 'Grant admin privileges to user (Super Admin only)' })
   @ApiParam({ name: 'id', description: 'User ID' })
   @ApiResponse({ status: 200, description: 'Admin privileges granted successfully' })
@@ -153,7 +152,7 @@ export class UsersController {
   }
 
   @Post(':id/revoke-admin')
-  @Roles(AdminRole.SUPER_ADMIN)
+  @Roles('super_admin')
   @ApiOperation({ summary: 'Revoke admin privileges from user (Super Admin only)' })
   @ApiParam({ name: 'id', description: 'User ID' })
   @ApiResponse({ status: 200, description: 'Admin privileges revoked successfully' })

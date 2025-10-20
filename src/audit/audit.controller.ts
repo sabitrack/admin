@@ -4,7 +4,6 @@ import { AuditService } from './audit.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
-import { AdminRole } from '../admin/admin.schema';
 
 @ApiBearerAuth('admin-auth')
 @ApiTags('audit')
@@ -49,7 +48,7 @@ export class AuditController {
   }
 
   @Get('admin/:adminId')
-  @Roles(AdminRole.SUPER_ADMIN)
+  @Roles('super_admin')
   @ApiOperation({ summary: 'Get admin activity logs (Super Admin only)' })
   @ApiQuery({ name: 'page', required: false, type: Number, example: 1 })
   @ApiQuery({ name: 'limit', required: false, type: Number, example: 50 })
@@ -76,7 +75,7 @@ export class AuditController {
   }
 
   @Get('stats')
-  @Roles(AdminRole.SUPER_ADMIN)
+  @Roles('super_admin')
   @ApiOperation({ summary: 'Get audit statistics (Super Admin only)' })
   @ApiResponse({ status: 200, description: 'Audit statistics' })
   async getAuditStats() {

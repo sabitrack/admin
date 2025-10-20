@@ -38,7 +38,7 @@ export class AuthService {
     const payload = {
       sub: admin._id.toString(),
       email: admin.email,
-      role: admin.role,
+      roles: admin.roles,
     };
 
     const accessToken = this.jwtService.sign(payload);
@@ -53,7 +53,7 @@ export class AuthService {
         id: admin._id,
         email: admin.email,
         fullName: admin.fullName,
-        role: admin.role,
+        roles: admin.roles,
       },
     };
   }
@@ -70,7 +70,7 @@ export class AuthService {
       const newPayload = {
         sub: admin._id.toString(),
         email: admin.email,
-        role: admin.role,
+        roles: admin.roles,
       };
 
       const accessToken = this.jwtService.sign(newPayload);

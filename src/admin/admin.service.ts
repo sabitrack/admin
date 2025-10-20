@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Admin, AdminDocument, AdminRole } from './admin.schema';
+import { Admin, AdminDocument } from './admin.schema';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -14,10 +14,9 @@ export class AdminService {
     email: string;
     password: string;
     fullName: string;
-    role?: AdminRole;
     createdBy?: string;
   }): Promise<AdminDocument> {
-    const { email, password, fullName, role = AdminRole.ADMIN, createdBy } = adminData;
+    const { email, password, fullName, createdBy } = adminData;
     
     // Check if admin already exists
     const existingAdmin = await this.adminModel.findOne({ email: email.toLowerCase() });
@@ -33,7 +32,6 @@ export class AdminService {
       email: email.toLowerCase(),
       password: hashedPassword,
       fullName,
-      role,
       createdBy,
       isActive: true,
     });
@@ -88,22 +86,6 @@ export class AdminService {
       .sort({ createdAt: -1 });
   }
 
-  async updateAdminRole(adminId: string, newRole: AdminRole, updatedBy: string): Promise<AdminDocument> {
-    const admin = await this.adminModel.findByIdAndUpdate(
-      adminId,
-      { 
-        role: newRole,
-        updatedBy 
-      },
-      { new: true }
-    ).select('-password -activityLogs -loginHistory');
-
-    if (!admin) {
-      throw new NotFoundException('Admin not found');
-    }
-
-    return admin;
-  }
 
   async deactivateAdmin(adminId: string, deactivatedBy: string): Promise<void> {
     const admin = await this.adminModel.findByIdAndUpdate(

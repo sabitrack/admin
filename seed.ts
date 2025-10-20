@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './src/app.module';
 import { AdminService } from './src/admin/admin.service';
-import { AdminRole } from './src/admin/admin.schema';
 
 async function seedSuperAdmin() {
   console.log('🌱 Starting admin API seed process...');
@@ -24,7 +23,6 @@ async function seedSuperAdmin() {
         email: 'superadmin@sabitrack.com',
         password: 'SuperAdmin123!',
         fullName: 'Super Administrator',
-        role: AdminRole.SUPER_ADMIN,
         createdBy: 'system',
       });
 
@@ -43,7 +41,6 @@ async function seedSuperAdmin() {
         email: 'admin@sabitrack.com',
         password: 'Admin123!',
         fullName: 'Administrator',
-        role: AdminRole.ADMIN,
         createdBy: 'system',
       });
 

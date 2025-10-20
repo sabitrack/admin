@@ -4,9 +4,7 @@ import { AdminService } from './admin.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
-import { AdminRole } from './admin.schema';
 import { CreateAdminDto } from './dto/create-admin.dto';
-import { UpdateAdminRoleDto } from './dto/update-admin-role.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 
 @ApiBearerAuth('admin-auth')
@@ -17,7 +15,7 @@ export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
   @Get('list')
-  @Roles(AdminRole.SUPER_ADMIN)
+  @Roles('super_admin')
   @ApiOperation({ summary: 'Get all admins (Super Admin only)' })
   @ApiResponse({ status: 200, description: 'List of all admins' })
   async getAllAdmins() {
@@ -25,7 +23,7 @@ export class AdminController {
   }
 
   @Post('create')
-  @Roles(AdminRole.SUPER_ADMIN)
+  @Roles('super_admin')
   @ApiOperation({ summary: 'Create new admin (Super Admin only)' })
   @ApiResponse({ status: 201, description: 'Admin created successfully' })
   async createAdmin(@Body() createAdminDto: CreateAdminDto, @Request() req) {
@@ -35,25 +33,9 @@ export class AdminController {
     });
   }
 
-  @Put(':id/role')
-  @Roles(AdminRole.SUPER_ADMIN)
-  @ApiOperation({ summary: 'Update admin role (Super Admin only)' })
-  @ApiParam({ name: 'id', description: 'Admin ID' })
-  @ApiResponse({ status: 200, description: 'Admin role updated successfully' })
-  async updateAdminRole(
-    @Param('id') adminId: string,
-    @Body() updateRoleDto: UpdateAdminRoleDto,
-    @Request() req
-  ) {
-    return await this.adminService.updateAdminRole(
-      adminId,
-      updateRoleDto.role,
-      req.user.adminId
-    );
-  }
 
   @Put(':id/deactivate')
-  @Roles(AdminRole.SUPER_ADMIN)
+  @Roles('super_admin')
   @ApiOperation({ summary: 'Deactivate admin (Super Admin only)' })
   @ApiParam({ name: 'id', description: 'Admin ID' })
   @ApiResponse({ status: 200, description: 'Admin deactivated successfully' })
@@ -83,7 +65,7 @@ export class AdminController {
       id: admin._id,
       email: admin.email,
       fullName: admin.fullName,
-      role: admin.role,
+      roles: admin.roles,
       lastLoginAt: admin.lastLoginAt,
       createdAt: (admin as any).createdAt
     };
