@@ -27,6 +27,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { BanUserDto } from './dto/ban-user.dto';
 import { UpdateVerificationStatusDto } from './dto/update-verification-status.dto';
 import { GrantAdminDto } from './dto/grant-admin.dto';
+import { BulkDeleteUsersDto } from './dto/bulk-delete-users.dto';
 
 @ApiBearerAuth('admin-auth')
 @ApiTags('users')
@@ -100,6 +101,36 @@ export class UsersController {
   async deleteUser(@Param('id') id: string, @Request() req) {
     await this.usersService.deleteUser(id, req.user.adminId);
     return { message: 'User deleted successfully' };
+  }
+
+  @Post('bulk-delete')
+  @Roles('super_admin')
+  @ApiOperation({ summary: 'Bulk soft delete users (Super Admin only)' })
+  @ApiResponse({ 
+    status: 200, 
+    description: 'Bulk delete operation completed',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'number', description: 'Number of users successfully deleted' },
+        failed: { type: 'number', description: 'Number of users that failed to delete' },
+        results: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              userId: { type: 'string' },
+              success: { type: 'boolean' },
+              message: { type: 'string' },
+            },
+          },
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 400, description: 'Invalid request or empty user IDs array' })
+  async bulkDeleteUsers(@Body() bulkDeleteDto: BulkDeleteUsersDto, @Request() req) {
+    return await this.usersService.bulkDeleteUsers(bulkDeleteDto.userIds, req.user.adminId);
   }
 
   @Post(':id/ban')

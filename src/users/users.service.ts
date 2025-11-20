@@ -144,6 +144,84 @@ export class UsersService {
     );
   }
 
+  async bulkDeleteUsers(userIds: string[], adminId: string): Promise<{
+    success: number;
+    failed: number;
+    results: Array<{ userId: string; success: boolean; message: string }>;
+  }> {
+    if (!userIds || userIds.length === 0) {
+      throw new BadRequestException('User IDs array cannot be empty');
+    }
+
+    const results: Array<{ userId: string; success: boolean; message: string }> = [];
+    let successCount = 0;
+    let failedCount = 0;
+    const deletedEmails: string[] = [];
+
+    // Process each user ID
+    for (const userId of userIds) {
+      try {
+        const user = await this.userModel.findById(userId);
+        
+        if (!user) {
+          results.push({
+            userId,
+            success: false,
+            message: 'User not found',
+          });
+          failedCount++;
+          continue;
+        }
+
+        if (user.deleted) {
+          results.push({
+            userId,
+            success: false,
+            message: 'User already deleted',
+          });
+          failedCount++;
+          continue;
+        }
+
+        // Soft delete the user
+        await this.userModel.findByIdAndUpdate(userId, {
+          deleted: true,
+          deleteReason: 'Deleted by admin (bulk delete)',
+          deleteRequestedAt: new Date(),
+        });
+
+        deletedEmails.push(user.email);
+        results.push({
+          userId,
+          success: true,
+          message: 'User deleted successfully',
+        });
+        successCount++;
+      } catch (error) {
+        results.push({
+          userId,
+          success: false,
+          message: error.message || 'Failed to delete user',
+        });
+        failedCount++;
+      }
+    }
+
+    // Log admin activity for bulk delete
+    await this.adminService.logActivity(
+      adminId,
+      'BULK_DELETE_USERS',
+      `Bulk deleted ${successCount} user(s): ${deletedEmails.join(', ')}`,
+      'admin-api'
+    );
+
+    return {
+      success: successCount,
+      failed: failedCount,
+      results,
+    };
+  }
+
   async banUser(id: string, banUserDto: BanUserDto, adminId: string): Promise<UserDocument> {
     const user = await this.userModel.findByIdAndUpdate(
       id,
