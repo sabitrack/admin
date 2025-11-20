@@ -113,8 +113,8 @@ async function bootstrap() {
     },
   });
 
-  const port = process.env.PORT || (useHttps ? 443 : 3002);
-  await app.listen(port, '0.0.0.0');
+  const port = process.env.PORT;
+  await app.listen(port);
 
   const protocol = useHttps ? 'https' : 'http';
   logger.log(`🚀 Admin API is running on: ${protocol}://localhost:${port}`);
