@@ -11,6 +11,7 @@ import { WalletModule } from './wallet/wallet.module';
 import { PaymentHistoryModule } from './payment-history/payment-history.module';
 import { ProjectManagementModule } from './project-management/project-management.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { PublicFundingModule } from './public-funding/public-funding.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
     PaymentHistoryModule,
     ProjectManagementModule,
     DashboardModule,
+    PublicFundingModule,
   ],
   controllers: [AppController],
   providers: [AppService],

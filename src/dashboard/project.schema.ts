@@ -59,6 +59,21 @@ export class Project {
   @Prop({ default: true })
   allowVendorNegotiate: boolean;
 
+  @Prop({ required: false })
+  makeProjectSharable?: boolean;
+
+  @Prop({ required: false })
+  EnableFunding?: boolean;
+
+  @Prop({ required: false })
+  fundraisingTargetAmount?: number;
+
+  @Prop({ required: false })
+  fundraisingStartDate?: Date;
+
+  @Prop({ required: false })
+  fundRaisingEndDate?: Date;
+
   @Prop({
     type: {
       runnerId: { type: Types.ObjectId, ref: 'User' },
